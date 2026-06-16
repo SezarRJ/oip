@@ -53,6 +53,7 @@ class OpportunityDetectionEngine:
         self.config = config or {}
         self.detectors = {
             OpportunityType.TRADE_ARBITRAGE: self._detect_trade_arbitrage,
+            OpportunityType.INFORMATION_ARBITRAGE: self._detect_information_arbitrage,
             OpportunityType.SUPPLY_GAP: self._detect_supply_gap,
             OpportunityType.DEMAND_GAP: self._detect_demand_gap,
             OpportunityType.INVENTORY_LIQUIDATION: self._detect_inventory_liquidation,
@@ -77,6 +78,36 @@ class OpportunityDetectionEngine:
         all_opps.sort(key=lambda o: o.confidence * w.get(o.urgency, 0.0), reverse=True)
         return all_opps
 
+    def _detect_information_arbitrage(self, c, p, d, i):
+        """Find opportunities where knowing something others don't creates value."""
+        opps = []
+        for intel in i:
+            if intel.get("sentiment") in ("opportunity", "positive") and intel.get("impact_score", 0) > 50:
+                aff = intel.get("countries_affected", [])
+                prods = intel.get("products_affected", [])
+                for ds in d:
+                    if ds.get("buyer_country") in aff:
+                        needed = set(p.lower() for p in ds.get("products_needed", []))
+                        if not needed: continue
+                        matched = [p for p in prods if any(p.lower() in n or n in p.lower() for n in needed)]
+                        if matched:
+                            timeframe = "immediate" if intel.get("intel_type") in ("market_shortage", "sanctions_update") else "1-3 months"
+                            urgency = "critical" if intel.get("impact_score", 0) > 75 else "high"
+                            opps.append(DetectedOpportunity(
+                                opportunity_type=OpportunityType.INFORMATION_ARBITRAGE,
+                                title=f"Info Edge: {intel.get('title','Intel')}",
+                                description=intel.get("summary",""),
+                                source_country=aff[0] if aff else "",
+                                target_country=ds.get("buyer_country",""),
+                                product_category=matched[0] if matched else None,
+                                why_exists="Information asymmetry — market not yet aware of this development",
+                                competitor_analysis=f"Most competitors lack real-time monitoring of {intel.get('intel_type','news')} in this region",
+                                window_estimate=timeframe,
+                                urgency=urgency,
+                                confidence=min(0.85, intel.get("confidence",0.5) + 0.15),
+                                data_sources=[intel.get("source_name", "news")],
+                            ))
+        return opps
     def _detect_trade_arbitrage(self, c, p, d, i):
         opps = []
         by_cat = {}

@@ -157,9 +157,11 @@ class OpportunityIntelligencePipeline:
 
         for opp in opportunities:
             try:
-                # ── Profitability ──
-                purchase_cost = opp.capital_required_estimate * 0.7  # Estimate purchase as 70% of capital
                 is_brokerage = opp.opportunity_type == OpportunityType.BROKERAGE
+                purchase_cost = opp.capital_required_estimate * 0.7
+                # Brokerages: capital is $0, profit is commission only
+                if is_brokerage:
+                    purchase_cost = 0
 
                 profitability = self.profitability_engine.calculate(
                     purchase_cost_usd=purchase_cost,

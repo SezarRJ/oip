@@ -226,7 +226,7 @@ class DecisionEngine:
         """Pair each opportunity with its score."""
         result = []
         for opp in opportunities:
-            opp_id = getattr(opp, "id", str(opp))
+            opp_id = getattr(opp, "title", str(opp))
             score = scores.get(opp_id) if isinstance(scores, dict) else None
             result.append((opp, score))
         return result
