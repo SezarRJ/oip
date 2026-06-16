@@ -1,0 +1,130 @@
+# Opportunity Intelligence Platform - Master Configuration
+# Personal-use system. Single operator. Not SaaS.
+
+system:
+  name: "Opportunity Intelligence Platform"
+  version: "1.0.0"
+  operator: "solo"
+  timezone: "Asia/Baghdad"
+
+# ── Capital Tiers (USD) ──
+capital_tiers:
+  - { label: "Zero Capital",     min: 0,        max: 0 }
+  - { label: "Micro",            min: 1,        max: 10000 }
+  - { label: "Small",            min: 10001,    max: 50000 }
+  - { label: "Medium",           min: 50001,    max: 100000 }
+  - { label: "Large",            min: 100001,   max: 500000 }
+  - { label: "Major",            min: 500001,   max: 1000000 }
+  - { label: "Mega",             min: 1000001,  max: 999999999 }
+
+# ── Target Geographies ──
+sourcing_markets:
+  primary:
+    - { code: TR, name: Turkey,     currency: TRY, risk_base: 0.35 }
+    - { code: IQ, name: Iraq,       currency: IQD, risk_base: 0.50 }
+    - { code: SY, name: Syria,      currency: SYP, risk_base: 0.70 }
+    - { code: IR, name: Iran,       currency: IRR, risk_base: 0.60 }
+    - { code: CN, name: China,      currency: CNY, risk_base: 0.20 }
+
+demand_markets:
+  primary:
+    - { code: IQ, name: Iraq,           currency: IQD, risk_base: 0.45 }
+    - { code: SY, name: Syria,          currency: SYP, risk_base: 0.65 }
+    - { code: IR, name: Iran,           currency: IRR, risk_base: 0.55 }
+    - { code: SA, name: Saudi Arabia,   currency: SAR, risk_base: 0.20 }
+    - { code: AE, name: UAE,            currency: AED, risk_base: 0.15 }
+    - { code: QA, name: Qatar,          currency: QAR, risk_base: 0.15 }
+    - { code: KW, name: Kuwait,         currency: KWD, risk_base: 0.18 }
+    - { code: OM, name: Oman,           currency: OMR, risk_base: 0.25 }
+    - { code: BH, name: Bahrain,        currency: BHD, risk_base: 0.22 }
+  secondary:
+    - { code: DE, name: Germany,        currency: EUR, risk_base: 0.10 }
+    - { code: GB, name: United Kingdom, currency: GBP, risk_base: 0.12 }
+    - { code: KZ, name: Kazakhstan,     currency: KZT, risk_base: 0.35 }
+    - { code: EG, name: Egypt,          currency: EGP, risk_base: 0.40 }
+    - { code: LY, name: Libya,          currency: LYD, risk_base: 0.55 }
+    - { code: DZ, name: Algeria,        currency: DZD, risk_base: 0.40 }
+
+# ── Data Sources ──
+data_sources:
+  b2b_marketplaces:
+    - { name: Alibaba, url: "https://www.alibaba.com", type: b2b, region: global, priority: high }
+    - { name: "Made in China", url: "https://www.made-in-china.com", type: b2b, region: china, priority: high }
+    - { name: TradeKey, url: "https://www.tradekey.com", type: b2b, region: global, priority: high }
+    - { name: TurkExim, url: "https://www.turkexim.com", type: b2b, region: turkey, priority: high }
+    - { name: ExportHub, url: "https://www.exporthub.com", type: b2b, region: global, priority: medium }
+
+  trade_databases:
+    - { name: "UN Comtrade", url: "https://comtradeplus.un.org", type: government, priority: high }
+    - { name: "ITC Trade Map", url: "https://www.trademap.org", type: government, priority: high }
+
+  tender_platforms:
+    - { name: "Iraq Tenders", url: "https://www.iraq-oil.com", type: tender, region: iraq, priority: high }
+    - { name: "UAE Tenders", url: "https://www.tenders.ae", type: tender, region: uae, priority: high }
+    - { name: "Saudi Tenders", url: "https://www.etimad.sa", type: tender, region: saudi, priority: high }
+    - { name: "DG Market", url: "https://www.dgmarket.com", type: tender, region: global, priority: medium }
+
+  news_sources:
+    - { name: Reuters, url: "https://www.reuters.com", type: news, priority: high }
+    - { name: Bloomberg, url: "https://www.bloomberg.com", type: news, priority: high }
+    - { name: "Trade Arabia", url: "https://www.tradearabia.com", type: news, region: mena, priority: high }
+
+# ── Collection Schedule ──
+collection_schedule:
+  high_frequency:
+    - b2b_marketplaces
+    - tender_platforms
+    - news_sources
+  medium_frequency:
+    - trade_databases
+  low_frequency:
+    - government_reports
+    - economic_reports
+
+# ── Scoring Weights ──
+scoring_weights:
+  expected_profit: 0.25
+  probability_of_success: 0.20
+  capital_efficiency: 0.15
+  execution_difficulty_inverse: 0.10
+  speed_to_revenue: 0.10
+  repeatability: 0.08
+  risk_inverse: 0.07
+  scalability: 0.05
+
+risk_weights:
+  supplier_risk: 0.20
+  buyer_risk: 0.15
+  country_risk: 0.15
+  currency_risk: 0.10
+  logistics_risk: 0.10
+  customs_risk: 0.10
+  payment_risk: 0.10
+  fraud_risk: 0.05
+  execution_risk: 0.05
+
+# ── Opportunity Types ──
+opportunity_types:
+  - trade_arbitrage
+  - information_arbitrage
+  - supply_gap
+  - demand_gap
+  - inventory_liquidation
+  - project_procurement
+  - tender_opportunity
+  - reconstruction
+  - regional_shortage
+  - emerging_demand
+  - regulatory_change
+  - shipping_route_advantage
+  - supplier_buyer_match
+  - brokerage
+
+# ── AI Configuration ──
+ai:
+  default_model: "claude-sonnet-4-20250514"
+  provider: "anthropic"
+  max_tokens: 4096
+  temperature: 0.3
+  daily_briefing_time: "07:00"
+  daily_briefing_timezone: "Asia/Baghdad"
